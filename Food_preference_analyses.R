@@ -71,16 +71,23 @@ cor.test(filtered_data$rir, filtered_data$prevalence, method = "spearman", exact
 
 
 ################  Proportion and RIR values for Table 2
-data$total_intake <- rowSums(data[, c("papaya", "romaine", "hibiscus", "feces")])
-# Calculate the proportion of each food type for each snail
-data$prop_papaya <- data$papaya / data$total_intake
-data$prop_romaine <- data$romaine / data$total_intake
-data$prop_hibiscus <- data$hibiscus / data$total_intake
-data$prop_feces <- data$feces / data$total_intake
-# Aggregate by species
-aggregate(cbind(prop_papaya, prop_romaine, prop_hibiscus, prop_feces) ~ species, data = data, FUN = mean)
 # For RIR values
 aggregate(cbind(papaya, romaine, hibiscus, feces) ~ species, data = data, FUN = mean)
+# For proportions
+
+data_individual_total <- df %>%
+  group_by(snail_ID) %>%
+  summarise(total_intake = sum(ate, na.rm = TRUE))
+
+data_with_proportions <- df %>%
+  left_join(data_individual_total, by = "snail_ID") %>%
+  mutate(proportion = ate / total_intake) %>%
+  select(snail_ID, species, food_type, proportion)
+
+data_with_proportions %>%
+  group_by(species, food_type) %>%
+  summarise(average_proportion = mean(proportion, na.rm = TRUE)) %>%
+  spread(key = food_type, value = average_proportion)
 
 
 ################  Create boxplots for Figure 2
@@ -114,4 +121,4 @@ ggplot(df.plot, aes(x = species, y = rir, fill = species)) +
     legend.text = element_text(face= "italic")
   )
 
-
+# END
