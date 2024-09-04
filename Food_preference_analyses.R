@@ -14,7 +14,6 @@ library(viridis)
 library(stringr)
 
 # Import data
-#data <- read_csv("relative intake values.csv")
 df <- read_excel("Food pref data.xlsx")
 
 # Convert to factor
